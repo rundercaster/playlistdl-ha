@@ -143,7 +143,7 @@ def generate(is_admin, command, temp_download_folder, session_id):
 
             shutil.rmtree(temp_download_folder, ignore_errors=True)
             yield "data: Download completed. Files saved to server directory.\n\n"
-            return  # ✅ Don’t try to serve/move anything else
+            return  # ✅ Don't try to serve/move anything else
 
         # ✅ PUBLIC USER HANDLING
         if len(valid_audio_files) > 1:
@@ -170,7 +170,12 @@ def generate(is_admin, command, temp_download_folder, session_id):
 
 
 def delayed_delete(folder_path):
-    time.sleep(300)
+    cleanup_interval = os.getenv('CLEANUP_INTERVAL', '300')
+    try:
+        delay = int(cleanup_interval)
+    except ValueError:
+        delay = 300
+    time.sleep(delay)
     shutil.rmtree(folder_path, ignore_errors=True)
 
 def emergency_cleanup_container_downloads():
@@ -234,4 +239,3 @@ def serve_download(session_id, filename):
 schedule_emergency_cleanup()
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
-

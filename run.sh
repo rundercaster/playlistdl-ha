@@ -26,13 +26,11 @@ print(value)
 PY
 }
 
-ADMIN_USERNAME=$(get_option "admin_username" "admin")
-ADMIN_PASSWORD=$(get_option "admin_password" "changeme")
-AUDIO_DOWNLOAD_PATH=$(get_option "audio_download_path" "/share/playlistdl")
+AUDIO_DOWNLOAD_PATH=$(get_option "audio_download_path" "/media")
 CLEANUP_INTERVAL=$(get_option "cleanup_interval" "300")
 
 mkdir -p "${AUDIO_DOWNLOAD_PATH}"
-export ADMIN_USERNAME ADMIN_PASSWORD AUDIO_DOWNLOAD_PATH CLEANUP_INTERVAL
+export AUDIO_DOWNLOAD_PATH CLEANUP_INTERVAL
 
 echo "Starting Audio Downloader..."
 echo "Download path: ${AUDIO_DOWNLOAD_PATH}"

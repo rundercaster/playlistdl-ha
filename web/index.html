@@ -8,45 +8,17 @@
 </head>
 <body>
     <div class="container">
-        <!-- Admin button in the top right corner -->
-	<button id="adminButton" onclick="handleAdminButton()">Admin</button>
-
         <h1>Audio Downloader</h1>
-        <div id="adminMessage" style="display: none; color: red; font-weight: bold;">
-    	Now downloading directly to your server!
-	
-	</div>
-	<input type="text" id="spotifyLink" placeholder="Paste your song link or playlist link here">
+        <p id="configInfo">Downloads will be saved to the configured folder.</p>
+        <input type="text" id="spotifyLink" placeholder="Paste your song link or playlist link here">
         <button onclick="download()">Download</button>
 
-        <!-- Progress bar -->
         <progress id="progress" value="0" max="100" style="display:none;"></progress>
-	<div id="adminControls" style="display:none;">
-    	    <input type="text" id="downloadPath" placeholder="Enter server download path">
-    	    <button onclick="setDownloadPath()">Set Download Path</button>
-    	    <div id="pathMessage"></div>
-	</div>
 
         <div id="result"></div>
-
-        <!-- Logs section -->
         <div id="logs" class="logs"></div>
-    </div>
-
-    <!-- Login modal for admin access -->
-    <!-- Login modal for admin access -->
-    <div id="loginModal" class="modal">
-        <div class="modal-content">
-            <span onclick="closeLoginModal()" class="close">&times;</span>
-            <h2>Admin Login</h2>
-            <input type="text" id="username" placeholder="Username">
-            <input type="password" id="password" placeholder="Password">
-            <button onclick="login()">Login</button>
-            <div id="loginMessage"></div>
-        </div>
     </div>
 
     <script src="script.js"></script>
 </body>
 </html>
-

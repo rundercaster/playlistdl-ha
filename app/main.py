@@ -67,7 +67,7 @@ def generate(command, temp_download_folder):
             print(f"▶️ {line.strip()}")
             yield f"data: {line.strip()}\n\n"
 
-            match = re.search(r'Found \d+ songs in (.+?) \\(', line)
+            match = re.search(r'Found \d+ songs in (.+?) \(', line)
             if match:
                 album_name = match.group(1).strip()
 
@@ -75,7 +75,7 @@ def generate(command, temp_download_folder):
         process.wait()
 
         if process.returncode != 0:
-            yield f"data: Error: Download exited with code {process.returncode}.\\n\\n"
+            yield f"data: Error: Download exited with code {process.returncode}.\n\n"
             return
 
         downloaded_files = []
@@ -87,7 +87,7 @@ def generate(command, temp_download_folder):
         valid_audio_files = [f for f in downloaded_files if f.lower().endswith(('.mp3', '.m4a', '.flac', '.wav', '.ogg'))]
 
         if not valid_audio_files:
-            yield f"data: Error: No valid audio files found. Please check the link.\\n\\n"
+            yield f"data: Error: No valid audio files found. Please check the link.\n\n"
             return
 
         moved_paths = []
@@ -112,17 +112,17 @@ def generate(command, temp_download_folder):
                     zipf.write(full_path, arcname=relative_path)
 
             from urllib.parse import quote
-            yield f"data: DOWNLOAD: /files/{quote(zip_filename)}\\n\\n"
+            yield f"data: DOWNLOAD: /files/{quote(zip_filename)}\n\n"
         else:
             from urllib.parse import quote
             relative_path = moved_paths[0].replace(os.sep, '/')
             encoded_path = quote(relative_path)
-            yield f"data: DOWNLOAD: /files/{encoded_path}\\n\\n"
+            yield f"data: DOWNLOAD: /files/{encoded_path}\n\n"
 
-        yield f"data: Download completed. Files saved to {AUDIO_DOWNLOAD_PATH}.\\n\\n"
+        yield f"data: Download completed. Files saved to {AUDIO_DOWNLOAD_PATH}.\n\n"
 
     except Exception as e:
-        yield f"data: Error: {str(e)}\\n\\n"
+        yield f"data: Error: {str(e)}\n\n"
 
 
 def delayed_delete(folder_path):

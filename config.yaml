@@ -6,10 +6,12 @@ arch:
   - aarch64
   - armv7
   - armhf
-version: 1.0.3
+version: 1.0.4
 slug: playlistdl
 init: false
 startup: services
+ingress: true
+ingress_port: 5000
 ports:
   5000/tcp: 5000
 host_network: false

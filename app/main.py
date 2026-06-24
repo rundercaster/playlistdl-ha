@@ -75,8 +75,7 @@ def generate(command, temp_download_folder):
         process.wait()
 
         if process.returncode != 0:
-            yield f"data: Error: Download exited with code {process.returncode}.\n\n"
-            return
+            yield f"data: Warning: yt-dlp/spotdl exited with code {process.returncode} — some tracks may have failed (private/deleted/region-locked). Continuing with what downloaded successfully.\n\n"
 
         downloaded_files = []
         for root, _, files in os.walk(temp_download_folder):

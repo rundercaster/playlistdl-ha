@@ -45,7 +45,6 @@ async function download() {
             downloadLink.download = decodeURIComponent(downloadPath.split('/').pop());
             downloadLink.innerText = "Open downloaded file";
             document.getElementById('result').appendChild(downloadLink);
-            downloadLink.click();
 
             eventSource.close();
             progressBar.style.display = 'none';

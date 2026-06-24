@@ -60,16 +60,22 @@ def download_media():
 
 def generate(command, temp_download_folder):
     album_name = None
+    failed_lines = []
     try:
         process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
 
         for line in process.stdout:
-            print(f"▶️ {line.strip()}")
-            yield f"data: {line.strip()}\n\n"
+            stripped = line.strip()
+            print(f"▶️ {stripped}")
+            yield f"data: {stripped}\n\n"
 
-            match = re.search(r'Found \d+ songs in (.+?) \(', line)
+            match = re.search(r'Found \d+ songs in (.+?) \(', stripped)
             if match:
                 album_name = match.group(1).strip()
+
+            # Catch yt-dlp's "ERROR: ..." lines and spotdl's failure/skip messages
+            if re.search(r'^error', stripped, re.IGNORECASE) or re.search(r'could not download|no results found|skipping', stripped, re.IGNORECASE):
+                failed_lines.append(stripped)
 
         process.stdout.close()
         process.wait()
@@ -117,6 +123,11 @@ def generate(command, temp_download_folder):
             relative_path = moved_paths[0].replace(os.sep, '/')
             encoded_path = quote(relative_path)
             yield f"data: DOWNLOAD: /files/{encoded_path}\n\n"
+
+        if failed_lines:
+            yield f"data: ----- {len(failed_lines)} track(s) failed to download: -----\n\n"
+            for fl in failed_lines:
+                yield f"data: FAILED: {fl}\n\n"
 
         yield f"data: Download completed. Files saved to {AUDIO_DOWNLOAD_PATH}.\n\n"
 

@@ -6,7 +6,7 @@ arch:
   - aarch64
   - armv7
   - armhf
-version: 1.0.5
+version: 1.0.6
 slug: playlistdl
 init: false
 startup: services

@@ -1,12 +1,45 @@
 console.log("Script loaded");
 
+const vuBars = () => document.querySelectorAll('#vuBars i');
+const statusLed = () => document.getElementById('statusLed');
+const eq = () => document.getElementById('eq');
+const logsElement = () => document.getElementById('logs');
+
+let vuLevel = 0;
+
+function setStatus(state, title) {
+    const el = statusLed();
+    el.dataset.state = state;
+    el.title = title;
+}
+
+function setVu(level) {
+    vuLevel = Math.max(0, Math.min(10, level));
+    vuBars().forEach((bar, i) => {
+        bar.classList.toggle('lit', i < vuLevel);
+    });
+}
+
+function bumpVu() {
+    setVu(Math.min(vuLevel + 1, 9));
+}
+
+function appendLog(text, cls) {
+    const line = document.createElement('div');
+    line.className = 'console__line' + (cls ? ' ' + cls : '');
+    line.textContent = text;
+    const logs = logsElement();
+    logs.appendChild(line);
+    logs.scrollTop = logs.scrollHeight;
+}
+
 async function loadConfig() {
     try {
         const response = await fetch('/config');
         const data = await response.json();
         const configInfo = document.getElementById('configInfo');
         if (configInfo) {
-            configInfo.textContent = `Downloads will be saved to: ${data.download_path}`;
+            configInfo.textContent = `Files save to: ${data.download_path}`;
         }
     } catch (error) {
         console.error('Could not load config:', error);
@@ -17,55 +50,68 @@ async function download() {
     const spotifyLink = document.getElementById('spotifyLink').value;
 
     if (!spotifyLink) {
-        document.getElementById('result').innerText = "Please enter a Spotify or YouTube link.";
+        document.getElementById('result').textContent = "Paste a Spotify or YouTube link first.";
         return;
     }
 
-    const logsElement = document.getElementById('logs');
-    logsElement.innerHTML = "";
-    document.getElementById('result').innerText = "";
-
-    const progressBar = document.getElementById('progress');
-    progressBar.style.display = 'block';
-    progressBar.value = 0;
-    const increment = 10;
+    logsElement().innerHTML = "";
+    document.getElementById('result').innerHTML = "";
+    setVu(0);
+    setStatus('working', 'Downloading');
+    eq().classList.add('active');
 
     const eventSource = new EventSource(`/download?spotify_link=${encodeURIComponent(spotifyLink)}`);
 
-    eventSource.onmessage = function(event) {
+    eventSource.onmessage = function (event) {
         const log = event.data;
 
         if (log.startsWith("DOWNLOAD:")) {
-            progressBar.value = 100;
+            setVu(10);
             const downloadPath = log.split("DOWNLOAD: ")[1].trim();
 
-            const downloadLink = document.createElement('a');
-            downloadLink.href = downloadPath;
-            downloadLink.target = '_blank';
-            downloadLink.download = decodeURIComponent(downloadPath.split('/').pop());
-            downloadLink.innerText = "Open downloaded file";
-            document.getElementById('result').appendChild(downloadLink);
+            const resultEl = document.getElementById('result');
+            resultEl.innerHTML = "";
+            const link = document.createElement('a');
+            link.href = downloadPath;
+            link.target = '_blank';
+            link.className = 'result__link';
+            link.textContent = 'Saved on server — view file';
+            resultEl.appendChild(link);
 
+        } else if (log.startsWith("Download completed")) {
+            appendLog(log, 'console__line--ok');
+            setStatus('done', 'Done');
+            eq().classList.remove('active');
             eventSource.close();
-            progressBar.style.display = 'none';
-        } else if (log.includes("Download completed")) {
-            logsElement.innerHTML += "Download completed successfully.<br>";
+
+        } else if (log.startsWith("FAILED:")) {
+            appendLog(log, 'console__line--fail');
+
+        } else if (log.startsWith("Warning:")) {
+            appendLog(log, 'console__line--warn');
+
+        } else if (log.startsWith("-----")) {
+            appendLog(log, 'console__line--divider');
+
         } else if (log.startsWith("Error")) {
-            document.getElementById('result').innerText = `Error: ${log}`;
+            appendLog(log, 'console__line--fail');
+            document.getElementById('result').textContent = log;
+            setStatus('error', 'Error');
+            eq().classList.remove('active');
             eventSource.close();
-            progressBar.style.display = 'none';
+
         } else {
-            progressBar.value = Math.min(progressBar.value + increment, 95);
-            logsElement.innerHTML += log + "<br>";
-            logsElement.scrollTop = logsElement.scrollHeight;
+            appendLog(log);
+            bumpVu();
         }
     };
 
-    eventSource.onerror = function() {
-        if (!logsElement.innerHTML.includes("Download completed successfully")) {
-            document.getElementById('result').innerText = "Error occurred while downloading.";
+    eventSource.onerror = function () {
+        if (statusLed().dataset.state === 'working') {
+            appendLog("Error: connection to server was lost.", 'console__line--fail');
+            setStatus('error', 'Error');
         }
-        progressBar.style.display = 'none';
+        eq().classList.remove('active');
         eventSource.close();
     };
 }

@@ -1,24 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audio Downloader</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audio Downloader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Audio Downloader</h1>
-        <p id="configInfo">Downloads will be saved to the configured folder.</p>
-        <input type="text" id="spotifyLink" placeholder="Paste your song link or playlist link here">
-        <button onclick="download()">Download</button>
 
-        <progress id="progress" value="0" max="100" style="display:none;"></progress>
+<main class="deck">
+  <div class="deck__screws"><span></span><span></span><span></span><span></span></div>
 
-        <div id="result"></div>
-        <div id="logs" class="logs"></div>
+  <header class="nameplate">
+    <div class="nameplate__row">
+      <h1 class="nameplate__title">Audio<span>Downloader</span></h1>
+      <div class="status-led" id="statusLed" data-state="idle" title="Idle"></div>
     </div>
+    <p class="nameplate__sub" id="configInfo">Reading config&hellip;</p>
+  </header>
 
-    <script src="script.js"></script>
+  <section class="input-row">
+    <label class="visually-hidden" for="spotifyLink">Song or playlist link</label>
+    <input type="text" id="spotifyLink" placeholder="Paste a Spotify or YouTube link" autocomplete="off">
+    <button id="downloadBtn" onclick="download()" type="button">
+      <span class="btn-icon" aria-hidden="true">&#9658;</span>Fetch
+    </button>
+  </section>
+
+  <section class="vu" aria-hidden="true">
+    <span class="vu__label">Level</span>
+    <div class="vu__bars" id="vuBars">
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    </div>
+  </section>
+
+  <section class="console">
+    <div class="console__header">
+      <div class="eq" id="eq" aria-hidden="true">
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      </div>
+      <span class="console__label">Signal</span>
+    </div>
+    <div class="console__screen" id="logs" role="log" aria-live="polite"></div>
+  </section>
+
+  <div id="result" class="result"></div>
+</main>
+
+<script src="script.js"></script>
 </body>
 </html>
